@@ -23,6 +23,7 @@ def main():
             # Logout on ESC key
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 logout_user()
+                
                 main()  # Restart main flow
                 return
 

@@ -10,19 +10,21 @@ import pathfinder
 from login_screen import LoginScreen
 from text_input import TextInputBox
 from maze_generator import generate_maze
-from auth.auth_utils import auth_save_score, USER_FILE
+from auth.auth_utils import auth_save_score, USER_FILE, logout_user
 from game_state import GameState
 from button import Button, ImageButton
 from leaderboard import load_leaderboard, save_score
 
 class Game:
     def __init__(self, screen):
+        # Initialize game state and assets
         self.screen = screen
         self.state = GameState.LOGIN
         self.font = pygame.font.SysFont(None, 32)
         self.images = resources.load_assets_image()
         self.sounds = resources.load_assets_sounds()
         self.login = LoginScreen(self.screen)
+        # Initialize buttons
         self.start_button = ImageButton(
             config.WIDTH // 2 - 60, 150, 
             self.images["start"] 
@@ -44,10 +46,11 @@ class Game:
             self.font, (120, 80, 255), (255, 255, 255), hover_color=(80, 60, 200)
         )
         self.admin_button = Button(
-            config.WIDTH // 2 - 60, config.HEIGHT // 2 + 280, 150, 50, "Admin Panel",
+            config.WIDTH // 2 - 60, config.HEIGHT // 2 + 140, 150, 50, "Admin Panel",
             self.font, (200, 200, 0), (0, 0, 0), hover_color=(180, 180, 20)
         )
 
+        # Game variables
         self.reset_info = ""
         self.restart_pressed = False
         self.level_won_sound_played = False
@@ -72,31 +75,31 @@ class Game:
         }
 
     def handle_event(self, event):
+        # Handle user input and events based on current game state
         if self.state == GameState.HOME:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     self.reset_game()
                 elif event.key == pygame.K_q:
-                    auth_save_score(self.current_user, self.score)
-                    pygame.quit()
-                    sys.exit()
+                    self.Exit_pro()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
+                # Check which button is clicked
                 if self.start_button.is_clicked(pygame.mouse.get_pos()):
                     self.reset_game()
                 elif self.quit_button.is_clicked(pygame.mouse.get_pos()):
-                    pygame.quit()
-                    sys.exit()
+                    self.Exit_pro()
                 elif self.help_button.is_clicked(pygame.mouse.get_pos()):
                     self.state = GameState.HELP
                 elif self.leaderboard_button.is_clicked(pygame.mouse.get_pos()):
                     self.state = GameState.LEADERBOARD
                 elif self.logout_button.is_clicked(pygame.mouse.get_pos()):
                     self.state = GameState.LOGOUT
-            if config.logged_in_user == "admin" and self.admin_button.is_clicked(pygame.mouse.get_pos()):
-                self.state = GameState.ADMIN
+                elif config.logged_in_user == "admin" and self.admin_button.is_clicked(pygame.mouse.get_pos()):
+                    self.state = GameState.ADMIN
 
         elif self.state == GameState.RESET_PASSWORD:
+            # Handle password reset input
             self.reset_user_box.handle_event(event)
             self.reset_pass_box.handle_event(event)
             if event.type == pygame.KEYDOWN:
@@ -110,14 +113,17 @@ class Game:
                     self.state = GameState.HOME
 
         elif self.state == GameState.ADMIN:
+            # Admin panel navigation
             if event.type == pygame.KEYDOWN and event.key == pygame.K_b:
                 self.state = GameState.HOME
 
         elif self.state == GameState.COMPLETED:
+            # Game completed, wait for space to return home
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 self.state = GameState.HOME
                 
         elif self.state == GameState.PLAYING:
+            # In-game controls
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_h:
                     self.show_hint_to_key = not self.show_hint_to_key
@@ -130,25 +136,35 @@ class Game:
                     self.change_theme("player")
                 
         elif self.state == GameState.HELP:
+            # Help screen navigation
             if event.type == pygame.KEYDOWN and event.key == pygame.K_b:
                 self.state = GameState.HOME
                 
         elif self.state == GameState.LEADERBOARD:
+            # Leaderboard navigation
             if event.type == pygame.KEYDOWN and event.key == pygame.K_b:
                 self.state = GameState.HOME
 
         elif self.state == GameState.NAME_INPUT:
-            self.name = self.name_input_box.handle_event(event)
+            # Handle name input for leaderboard
+            if self.current_user == "":
+                self.name = self.name_input_box.handle_event(event)
+            else:
+                self.name = self.current_user
             if self.name:
                 save_score(self.name, self.score)
                 self.state = GameState.LEADERBOARD
                 
         elif self.state == GameState.LOGOUT:
+            # Logout logic
             if event.type == pygame.KEYDOWN and event.key == pygame.K_b:
+                auth_save_score(self.current_user, self.score)
                 config.logged_in_user = None
+                logout_user()
                 self.state = GameState.LOGIN
             
         if self.state in [GameState.WON, GameState.LOST]:
+            # Restart or quit after win/loss
             if event.type == pygame.KEYDOWN and event.key == pygame.K_r and not self.restart_pressed:
                 config.level = 1
                 self.reset_game()
@@ -160,6 +176,7 @@ class Game:
                 sys.exit()
 
     def draw_minimap(self, surface, maze, scale=5):
+        # Draw a minimap of the maze
         path_to_crystal = pathfinder.find_path_to_crystal()
 
         for y, row in enumerate(maze):
@@ -185,9 +202,11 @@ class Game:
             pygame.draw.rect(surface, (255, 255, 255), (x * scale + 1, y * scale + 1, scale - 2, scale - 2))
 
     def update(self):
+        # Main update loop for drawing and logic
         self.screen.fill((0, 0, 0))
 
         if self.state == GameState.HOME:
+            # Draw home screen and buttons
             self.screen.blit(self.images["bg"], (0, 0))
             title_text = self.font.render("🌀 Mystic Maze: The Quest for the Crystal", True, (255, 255, 255))
             self.screen.blit(title_text, (config.WIDTH // 6, config.HEIGHT // 3 + 30))
@@ -200,6 +219,7 @@ class Game:
                 self.admin_button.draw(self.screen)
 
         if self.state == GameState.RESET_PASSWORD:
+            # Draw password reset screen
             self.screen.fill((25, 25, 25))
             title = self.font.render("🔐 Reset Password", True, (255, 255, 255))
             self.screen.blit(title, (config.WIDTH // 2 - 100, 100))
@@ -214,6 +234,7 @@ class Game:
                 self.screen.blit(info, (config.WIDTH // 2 - 140, 340))
            
         elif self.state == GameState.LEADERBOARD:
+            # Draw leaderboard
             self.screen.fill((20, 20, 50))
             title = self.font.render("🏆 Leaderboard - Top 10", True, (255, 255, 255))
             self.screen.blit(title, (config.WIDTH // 3, 50))
@@ -227,6 +248,7 @@ class Game:
             self.screen.blit(back_text, (config.WIDTH // 3, config.HEIGHT - 60))
 
         elif self.state == GameState.PLAYING:
+            # Draw game elements and handle collisions
             self.draw_element()
             self.collisions()
 
@@ -245,6 +267,7 @@ class Game:
                 self.screen.blit(minimap_surface, (config.WIDTH - 110, config.HEIGHT - 110))
 
         elif self.state == GameState.TRANSITION:
+            # Level transition countdown
             elapsed = pygame.time.get_ticks() - config.transition_start_time
             countdown_left = max(0, config.COUNTDOWN_DURATION - elapsed)
             countdown_seconds = countdown_left // 1000 + 1  # +1 for intuitive countdown
@@ -266,18 +289,21 @@ class Game:
                 self.state = GameState.PLAYING
                 
         elif self.state == GameState.COMPLETED:
+            # Game completed screen
             text = self.font.render("All levels complete! Thanks for playing!", True, (0, 0, 255))
             self.screen.blit(text, (config.WIDTH // 6, config.HEIGHT // 2))
             text = self.font.render(f"Score: {self.score}", True, (0,150,150))
             self.screen.blit(text, (config.WIDTH // 2 - 60, config.HEIGHT // 2 + 30))
 
         elif self.state == GameState.LOST:
+            # Game over screen
             lost_text = self.font.render("Game Over! Press R to Restart", True, (200, 0, 0))
             self.screen.blit(lost_text, (config.WIDTH // 4, config.HEIGHT // 2))
             self.sounds["losing"].play()
             self.score = 0
             
         elif self.state == GameState.LEVEL_WON:
+            # Level won screen and transition to next level
             self.screen.fill((0, 0, 0))
 
             elapsed = pygame.time.get_ticks() - config.level_time
@@ -307,14 +333,17 @@ class Game:
                     self.reset_game()
                     
         elif self.state == GameState.NAME_INPUT:
-            self.screen.fill((0, 0, 0))
-            prompt = self.font.render("Enter your name:", True, (255, 255, 255))
-            self.screen.blit(prompt, (config.WIDTH // 2 - 100, config.HEIGHT // 2 - 50))
-            self.name_input_box.draw(self.screen)
+            # Name input for leaderboard
+            if self.current_user == "":
+                self.screen.fill((0, 0, 0))
+                prompt = self.font.render("Enter your name:", True, (255, 255, 255))
+                self.screen.blit(prompt, (config.WIDTH // 2 - 100, config.HEIGHT // 2 - 50))
+                self.name_input_box.draw(self.screen)
             if self.name:
                 self.state = GameState.COMPLETED
 
         elif self.state == GameState.LOGOUT:
+            # Logout screen
             self.screen.fill((30, 30, 30))
             text = self.font.render("You have been logged out.", True, (255, 255, 255))
             info = self.font.render("Press B to go back to Login Screen.", True, (180, 180, 180))
@@ -325,10 +354,13 @@ class Game:
             self.screen.blit(info, (config.WIDTH // 4, config.HEIGHT // 3 + 40))
         
         elif self.state == GameState.LOGIN:
+            # Login screen
             self.current_user = self.login.run()
+            config.logged_in_user = self.current_user
             self.state = GameState.HOME
                        
         elif self.state == GameState.HELP:
+            # Help/instructions screen
             self.screen.fill((10, 10, 30))
             lines = [
                 "Game Controls:",
@@ -345,6 +377,7 @@ class Game:
                 self.screen.blit(text, (50, 100 + idx * 40))
 
         elif self.state == GameState.ADMIN:
+            # Admin panel for user stats
             self.screen.fill((10, 10, 40))
             title = self.font.render("Admin Panel - User Stats", True, (255, 255, 255))
             self.screen.blit(title, (config.WIDTH // 3, 40))
@@ -358,45 +391,61 @@ class Game:
             self.screen.blit(back_text, (100, config.HEIGHT - 50))
 
     def draw_element(self):
-        # Draw maze elements
-            for x, y in config.walls: self.screen.blit(self.images["wall"][str(self.theme["wall"])], (x * config.TILE_SIZE, y * config.TILE_SIZE))
-            for x, y in config.strips: self.screen.blit(self.images["strip"][str(self.theme["strip"])], (x * config.TILE_SIZE, y * config.TILE_SIZE))
-            for x, y in config.keys: self.screen.blit(self.images["key"], (x * config.TILE_SIZE, y * config.TILE_SIZE))
-            for x, y in config.traps: self.screen.blit(self.images["trap"], (x * config.TILE_SIZE, y * config.TILE_SIZE))
-            for x, y in config.healths: self.screen.blit(self.images["heart"], (x * config.TILE_SIZE, y * config.TILE_SIZE))
-            if config.crystal: self.screen.blit(self.images["crystal"], (config.crystal[0] * config.TILE_SIZE, config.crystal[1] * config.TILE_SIZE))
-            self.screen.blit(self.images["player"][str(self.theme["player"])], (config.player_pos[0] * config.TILE_SIZE, config.player_pos[1] * config.TILE_SIZE))
+        # Draw maze elements and HUD
+        for x, y in config.walls:
+            self.screen.blit(self.images["wall"][str(self.theme["wall"])], (x * config.TILE_SIZE, y * config.TILE_SIZE))
+        for x, y in config.strips:
+            self.screen.blit(self.images["strip"][str(self.theme["strip"])], (x * config.TILE_SIZE, y * config.TILE_SIZE))
+        for x, y in config.keys:
+            self.screen.blit(self.images["key"], (x * config.TILE_SIZE, y * config.TILE_SIZE))
+        for x, y in config.traps:
+            self.screen.blit(self.images["trap"], (x * config.TILE_SIZE, y * config.TILE_SIZE))
+        for x, y in config.healths:
+            self.screen.blit(self.images["heart"], (x * config.TILE_SIZE, y * config.TILE_SIZE))
+        if config.crystal:
+            self.screen.blit(self.images["crystal"], (config.crystal[0] * config.TILE_SIZE, config.crystal[1] * config.TILE_SIZE))
+        self.screen.blit(self.images["player"][str(self.theme["player"])], (config.player_pos[0] * config.TILE_SIZE, config.player_pos[1] * config.TILE_SIZE))
 
-            # HUD
-            for i in range(config.health):
-                self.screen.blit(self.images["heart"], (10 + i * 35, config.HEIGHT - 40))
-            for i in range(config.collected_keys):
-                self.screen.blit(self.images["key_icon"], (150 + i * 35, config.HEIGHT - 40))
-            if config.crystal_found:
-                self.screen.blit(self.images["crystal_icon"], (300, config.HEIGHT - 40))
-            elapsed_time = int(time.time() - self.start_time)
-            score_text = self.font.render(f"Score: {self.score}  Time: {elapsed_time}s", True, (255, 255, 255))
-            self.screen.blit(score_text, (20, 20))
+        # HUD: health, keys, crystal, score, time
+        for i in range(config.health):
+            self.screen.blit(self.images["heart"], (10 + i * 35, config.HEIGHT - 40))
+        for i in range(config.collected_keys):
+            self.screen.blit(self.images["key_icon"], (150 + i * 35, config.HEIGHT - 40))
+        if config.crystal_found:
+            self.screen.blit(self.images["crystal_icon"], (300, config.HEIGHT - 40))
+        elapsed_time = int(time.time() - self.start_time)
+        score_text = self.font.render(f"Score: {self.score}  Time: {elapsed_time}s", True, (255, 255, 255))
+        self.screen.blit(score_text, (20, 20))
 
-            if self.show_hint_to_key:
-                self.hint_path_to_key = pathfinder.find_path_to_nearest_key()
-                
-            if self.show_hint_to_key and self.hint_path_to_key:
-                for x, y in self.hint_path_to_key:
-                    pygame.draw.rect(
-                        self.screen, 
-                        (0, 255, 0, 128), 
-                        (x * config.TILE_SIZE + 10, y * config.TILE_SIZE + 10, 10, 10)
-                    )
+        # Show hint path to nearest key if enabled
+        if self.show_hint_to_key:
+            self.hint_path_to_key = pathfinder.find_path_to_nearest_key()
+            
+        if self.show_hint_to_key and self.hint_path_to_key:
+            for x, y in self.hint_path_to_key:
+                pygame.draw.rect(
+                    self.screen, 
+                    (0, 255, 0, 128), 
+                    (x * config.TILE_SIZE + 10, y * config.TILE_SIZE + 10, 10, 10)
+                )
 
-            # Handle keys
-            keys_pressed = pygame.key.get_pressed()
-            if keys_pressed[pygame.K_LEFT]: self.move(-1, 0); pygame.time.wait(150)
-            if keys_pressed[pygame.K_RIGHT]: self.move(1, 0); pygame.time.wait(150)
-            if keys_pressed[pygame.K_UP]: self.move(0, -1); pygame.time.wait(150)
-            if keys_pressed[pygame.K_DOWN]: self.move(0, 1); pygame.time.wait(150)
+        # Handle player movement with arrow keys
+        keys_pressed = pygame.key.get_pressed()
+        if keys_pressed[pygame.K_LEFT]:
+            self.move(-1, 0)
+            pygame.time.wait(150)
+        if keys_pressed[pygame.K_RIGHT]:
+            self.move(1, 0)
+            pygame.time.wait(150)
+        if keys_pressed[pygame.K_UP]:
+            self.move(0, -1)
+            pygame.time.wait(150)
+        if keys_pressed[pygame.K_DOWN]:
+            self.move(0, 1)
+            pygame.time.wait(150)
 
     def collisions(self):
+        # Handle collisions with traps, health, keys, and crystal
         if tuple(config.player_pos) in config.traps:
             config.traps.remove(tuple(config.player_pos))
             self.sounds["trap"].play()
@@ -421,6 +470,7 @@ class Game:
                 self.score += 100
 
         if tuple(config.player_pos) == config.crystal and config.collected_keys >= self.key_len:
+            # Player found the crystal after collecting all keys
             self.score += 200
             elapsed = (pygame.time.get_ticks() - config.level_start_time) // 1000
             time_bonus = max(0, config.LEVEL_TIME_LIMIT - elapsed)
@@ -431,11 +481,12 @@ class Game:
             config.level_time = pygame.time.get_ticks()
                             
     def reset_game(self):
+        # Reset and generate a new maze for the current level
         self.maze = generate_maze(config.ROWS, config.COLS, config.level)
         config.ROWS = min(15 + config.level, config.MAX_ROWS)
         config.COLS = min(20 + config.level, config.MAX_COLS)
 
-
+        # Reset all game objects and state
         config.walls, config.keys, config.traps, config.healths, config.strips = [], [], [], [], []
         config.crystal, config.collected_keys, config.health, config.crystal_found = None, 0, 3, False
         config.transition_start_time = pygame.time.get_ticks()
@@ -443,6 +494,7 @@ class Game:
         config.level_start_time = pygame.time.get_ticks()
         self.state = GameState.TRANSITION
 
+        # Parse maze and populate object lists
         for y, row in enumerate(self.maze):
             for x, cell in enumerate(row):
                 if cell == 'W': config.walls.append((x, y))
@@ -467,19 +519,28 @@ class Game:
         self.draw_minimap(self.screen, self.maze, scale=4)
 
     def move(self, dx, dy):
+        # Move player if not blocked by wall
         new_x = config.player_pos[0] + dx
         new_y = config.player_pos[1] + dy
         if (new_x, new_y) not in config.walls:
             config.player_pos = [new_x, new_y]
             
     def change_theme(self, key: str):
+        # Cycle through available themes for a given element
         if config.theme_index[key] >= config.MAX_THEME:
             config.theme_index[key] = 0
         else:
             config.theme_index[key] += 1
         self.theme[key] = config.THEMES[key][config.theme_index[key]]
 
+    def Exit_pro(self):
+        # Save score and exit game
+        auth_save_score(self.current_user, self.score)
+        pygame.quit()
+        sys.exit()
+    
 def load_user_stats():
+    # Load user stats from CSV file for admin panel
     stats = []
     with open(USER_FILE, newline='') as csvfile:
         reader = csv.DictReader(csvfile)
@@ -488,7 +549,7 @@ def load_user_stats():
     return sorted(stats, key=lambda x: x[1], reverse=True)
 
 def update_user_high_score(username, score):
-    import csv
+    # Update user's high score in CSV file
     rows = []
     with open(USER_FILE, newline='') as file:
         reader = csv.DictReader(file)

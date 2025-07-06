@@ -64,12 +64,15 @@ def load_assets_image():
         "heart_icon": load_image(os.path.join(THEME_PATH, "icons", "heart_icon.png"), (32, 32)),
         "key_icon": load_image(os.path.join(THEME_PATH, "icons", "key_icon.png"), (32, 32)),
         "crystal_icon": load_image(os.path.join(THEME_PATH, "icons", "crystal_icon.png"), (32, 32)),
+        "title_icon": load_image(os.path.join(THEME_PATH, "home", "icon.png"), (IMG_WIDTH, IMG_WIDTH)),
         
         # Home screen icons (help, leaderboard, quit, start)
         "help" : load_image(os.path.join(THEME_PATH, "home", "help.png"), (IMG_WIDTH, IMG_HEIGHT)),
         "leader_board" : load_image(os.path.join(THEME_PATH, "home", "leader_board.png"), (IMG_WIDTH, IMG_HEIGHT)),
         "quit" : load_image(os.path.join(THEME_PATH, "home", "quit.png"), (IMG_WIDTH, IMG_HEIGHT)),
         "start" : load_image(os.path.join(THEME_PATH, "home", "start.png"), (IMG_WIDTH, IMG_HEIGHT)),
+        "logout" : load_image(os.path.join(THEME_PATH, "home", "logout.png"), (IMG_WIDTH, IMG_HEIGHT)),
+        "admin" : load_image(os.path.join(THEME_PATH, "home", "admin.png"), (IMG_WIDTH, IMG_HEIGHT)),
     }
     return images
 

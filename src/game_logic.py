@@ -26,28 +26,28 @@ class Game:
         self.login = LoginScreen(self.screen)
         # Initialize buttons
         self.start_button = ImageButton(
-            config.WIDTH // 2 - 60, 150, 
+            config.WIDTH // 2 - 60, 220, 
             self.images["start"] 
         )
         self.quit_button = ImageButton(
-            config.WIDTH // 2 - 60, 220, 
+            config.WIDTH // 2 - 160, 280, 
             self.images["quit"] 
         )
         self.help_button = ImageButton(
-            config.WIDTH // 2 - 60, 290, 
+            config.WIDTH // 2 + 40, 285, 
             self.images["help"] 
         )
         self.leaderboard_button = ImageButton(
-            config.WIDTH // 2 - 60, 360, 
+            config.WIDTH // 2 - 60, 340, 
             self.images["leader_board"] 
         )
-        self.logout_button = Button(
-            config.WIDTH // 2 - 60, config.HEIGHT // 2 + 210, 150, 50, "Logout",
-            self.font, (120, 80, 255), (255, 255, 255), hover_color=(80, 60, 200)
+        self.logout_button = ImageButton(
+            config.WIDTH // 2 - 60, config.HEIGHT // 2 + 200, 
+            self.images["logout"]
         )
-        self.admin_button = Button(
-            config.WIDTH // 2 - 60, config.HEIGHT // 2 + 140, 150, 50, "Admin Panel",
-            self.font, (200, 200, 0), (0, 0, 0), hover_color=(180, 180, 20)
+        self.admin_button = ImageButton(
+            config.WIDTH // 2 - 60, config.HEIGHT // 2 + 130, 
+            self.images["admin"]
         )
 
         # Game variables
@@ -208,8 +208,8 @@ class Game:
         if self.state == GameState.HOME:
             # Draw home screen and buttons
             self.screen.blit(self.images["bg"], (0, 0))
-            title_text = self.font.render("🌀 Mystic Maze: The Quest for the Crystal", True, (255, 255, 255))
-            self.screen.blit(title_text, (config.WIDTH // 6, config.HEIGHT // 3 + 30))
+            title_icon = self.images["title_icon"]
+            self.screen.blit(title_icon, ((config.WIDTH // 2 - title_icon.get_width() // 2) + 10, (config.HEIGHT // 4 - title_icon.get_height() // 2) - 20))
             self.start_button.draw(self.screen)
             self.quit_button.draw(self.screen)
             self.leaderboard_button.draw(self.screen)
@@ -363,7 +363,7 @@ class Game:
             # Help/instructions screen
             self.screen.fill((10, 10, 30))
             lines = [
-                "Game Controls:",
+                "               Game Controls:",
                 "- Arrow Keys: Move Player",
                 "- Collect all keys 🗝️ to unlock the crystal 💎",
                 "- Avoid traps ☠️, pick hearts ❤️ to heal",

@@ -9,7 +9,7 @@ def load_leaderboard():
     if not os.path.exists(LEADERBOARD_FILE):
         # If file doesn't exist, return empty list
         return []
-    with open(LEADERBOARD_FILE, "r") as f:
+    with open(LEADERBOARD_FILE) as f:
         # Load and return the JSON data
         return json.load(f)
 

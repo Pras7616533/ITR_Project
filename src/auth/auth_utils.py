@@ -94,3 +94,24 @@ def get_all_scores():
         with open(SCORES_FILE, 'r') as f:
             return json.load(f)
     return {}
+
+# Password Reset Functionality
+def reset_password(username, new_password):
+    """
+    Reset the password for a given username.
+    Returns True if successful, False if user does not exist.
+    """
+    if not user_exists(username):
+        return False
+    users = []
+    with open(USER_FILE, mode='r', newline='') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            if row['username'] == username:
+                row['password'] = new_password
+            users.append(row)
+    with open(USER_FILE, mode='w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=['username', 'password', 'high_score'])
+        writer.writeheader()
+        writer.writerows(users)
+    return True

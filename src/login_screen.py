@@ -5,7 +5,8 @@ from auth.auth_utils import (
     init_user_file,
     remember_user,
     validate_user,
-    register_user
+    register_user,
+    reset_password
 )
 
 class LoginScreen:
@@ -21,6 +22,7 @@ class LoginScreen:
         self.login_btn = pygame.Rect(150, 230, 120, 40)
         self.signup_btn = pygame.Rect(310, 230, 120, 40)
         self.checkbox_rect = pygame.Rect(150, 275, 20, 20)
+        self.reset_btn = pygame.Rect(230, 320, 200, 40)  # Add reset button
 
         # Initialize input text and state variables
         self.user_text = ""
@@ -61,11 +63,13 @@ class LoginScreen:
         pygame.draw.rect(self.screen, (50, 100, 255), self.login_btn)
         pygame.draw.rect(self.screen, (50, 100, 255), self.signup_btn)
         pygame.draw.rect(self.screen, (255, 255, 255), self.checkbox_rect, 2)
+        pygame.draw.rect(self.screen, (200, 50, 50), self.reset_btn)
 
         # Draw button and checkbox labels
         self.screen.blit(self.font.render("Login", True, (255, 255, 255)), (self.login_btn.x + 30, self.login_btn.y + 10))
         self.screen.blit(self.font.render("Sign Up", True, (255, 255, 255)), (self.signup_btn.x + 20, self.signup_btn.y + 10))
         self.screen.blit(self.font.render("Remember Me", True, (255, 255, 255)), (180, 275))
+        self.screen.blit(self.font.render("Reset Password", True, (255, 255, 255)), (self.reset_btn.x + 20, self.reset_btn.y + 10))
 
         # Fill checkbox if checked
         if self.remember_me:
@@ -79,6 +83,8 @@ class LoginScreen:
 
         # Update display
         pygame.display.flip()
+
+        # Draw reset password button
 
     def run(self):
         # Auto-login if user is remembered
@@ -127,6 +133,19 @@ class LoginScreen:
                             self.error_msg = ""
                         else:
                             self.error_msg = "User already exists."
+                            self.success_msg = ""
+
+                    # Handle reset password button click
+                    if self.reset_btn.collidepoint(event.pos):
+                        if self.user_text and self.pass_text:
+                            if reset_password(self.user_text, self.pass_text):
+                                self.success_msg = "Password reset!"
+                                self.error_msg = ""
+                            else:
+                                self.error_msg = "User not found."
+                                self.success_msg = ""
+                        else:
+                            self.error_msg = "Enter username and new password."
                             self.success_msg = ""
 
                 if event.type == pygame.KEYDOWN:

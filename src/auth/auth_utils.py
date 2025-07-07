@@ -107,7 +107,7 @@ def reset_password(username, new_password):
     with open(USER_FILE, mode='r', newline='') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            if row['username'] == username:
+            if row['username'] == username and row['username'] != 'admin':
                 row['password'] = new_password
             users.append(row)
     with open(USER_FILE, mode='w', newline='') as f:

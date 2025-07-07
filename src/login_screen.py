@@ -77,9 +77,9 @@ class LoginScreen:
 
         # Show error or success messages
         if self.error_msg:
-            self.screen.blit(self.font.render(self.error_msg, True, (255, 0, 0)), (150, 310))
+            self.screen.blit(self.font.render(self.error_msg, True, (255, 0, 0)), (self.WIDTH // 2 - 60, 500))
         if self.success_msg:
-            self.screen.blit(self.font.render(self.success_msg, True, (0, 255, 0)), (150, 310))
+            self.screen.blit(self.font.render(self.success_msg, True, (0, 255, 0)), (self.WIDTH // 2 - 60, 500))
 
         # Update display
         pygame.display.flip()
@@ -138,7 +138,10 @@ class LoginScreen:
                     # Handle reset password button click
                     if self.reset_btn.collidepoint(event.pos):
                         if self.user_text and self.pass_text:
-                            if reset_password(self.user_text, self.pass_text):
+                            if self.user_text == 'admin':
+                                self.error_msg = "admin password can not change"
+                                self.success_msg = ""
+                            elif reset_password(self.user_text, self.pass_text):
                                 self.success_msg = "Password reset!"
                                 self.error_msg = ""
                             else:

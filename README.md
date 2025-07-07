@@ -1,37 +1,37 @@
 # 🌀 Mystic Maze: The Quest for the Crystal
 
-Welcome to *Mystic Maze*, a fantasy-themed 2D adventure game built with **Python & Pygame**. Explore challenging mazes, avoid traps, collect keys, and claim the legendary crystal! The game features user authentication, theming, a leaderboard, and more.
+Welcome to *Mystic Maze*, a fantasy-themed 2D adventure game built with **Python & Pygame**. Navigate intricate mazes, dodge traps, collect keys, and seek the legendary crystal! The game includes user authentication, theming, a leaderboard, and more.
 
 ---
 
 ## 🎮 Features
 
-* 🧩 **Maze Gameplay**: Randomly generated mazes with increasing difficulty.
-* 🔐 **Authentication System**:
-  * Login & Sign-Up screens
-  * "Remember Me" support
-  * Admin panel
-* 📊 **Leaderboard**: Tracks top high scores across users.
-* 🧙‍♂️ **User Data**:
-  * Per-user high score
-  * Theme preferences (wall, player, strip)
-* 🖼️ **Theming System**:
-  * Switch player, wall, and strip themes in-game (`P`, `S`)
-* 🗺️ **Mini-map & Hints**:
-  * `M`: Toggle mini-map
-  * `H`: Toggle path-to-nearest-key hints
-* 🛠️ **Admin Panel**:
-  * View all users and top scores
-* 🔁 **Reset Password Feature**
-* 🖼️ **Custom UI with assets**: Backgrounds, buttons, sound effects
-* 🧍‍♂️ **Profile Avatars** *(Planned)*
+- 🧩 **Maze Gameplay**: Randomly generated mazes with progressive difficulty.
+- 🔐 **Authentication System**:
+  - Login & Sign-Up screens
+  - "Remember Me" option
+  - Admin panel access
+- 📊 **Leaderboard**: Displays top high scores for all users.
+- 🧙‍♂️ **User Data**:
+  - Individual high scores
+  - Theme preferences (wall, player, strip)
+- 🖼️ **Theming System**:
+  - Change player, wall, and strip themes in-game (`P`, `S`)
+- 🗺️ **Mini-map & Hints**:
+  - 🗺️ **Mini-map**: Press `M` to toggle a navigation overlay.
+  - 💡 **Hints**: Press `H` to reveal the shortest path to the nearest key.
+- 🛠️ **Admin Panel**:
+  - View all users and top scores
+- 🔁 **Password Reset**
+- 🖼️ **Custom UI**: Unique backgrounds, buttons, and sound effects
+- 🧍‍♂️ **Profile Avatars** *(Coming Soon)*
 
 ---
 
 ## 🧾 Requirements
 
-* Python 3.8+
-* `pygame`
+- Python 3.8 or higher
+- `pygame` library
 
 Install dependencies:
 
@@ -46,7 +46,7 @@ pip install pygame
 | Action             | Key                 |
 | ------------------ | ------------------- |
 | Move Player        | Arrow Keys          |
-| Toggle Hint to Key | `H`                 |
+| Toggle Hint        | `H`                 |
 | Toggle Mini-map    | `M`                 |
 | Restart Level      | `R`                 |
 | Change Theme       | `P`, `S`            |
@@ -57,27 +57,27 @@ pip install pygame
 
 ## 👤 User Roles
 
-* **Player**: Can log in, play, and save high scores.
-* **Admin**:
-  * Use `username: admin`, `password: admin`
-  * Access admin panel to view global stats.
+- **Player**: Log in, play, and save high scores.
+- **Admin**:
+  - Default credentials: `username: admin`, `password: admin`
+  - Access admin panel for global stats.
 
 ---
 
-## 📚 Future Improvements
+## 📚 Planned Improvements
 
-* 🎨 Avatar/Profile Picture upload
-* 🌈 Theme Selector in settings
-* 📧 Email verification for password reset
-* 🗃️ SQLite support (optional upgrade from CSV)
-* 📱 Mobile port (Kivy / Android)
+- 🎨 Avatar/Profile Picture upload
+- 🌈 Theme selector in settings
+- 📧 Email verification for password reset
+- 🗃️ SQLite database support (optional)
+- 📱 Mobile version (Kivy/Android)
 
 ---
 
 ## 🧠 Credits
 
-* Built by: Prashant K Deshmukh
-* Assets: Custom-drawn or from open source repositories
-* Fonts: None
-* Icons: Emoji Unicode
+- Developed by: Prashant K Deshmukh
+- Assets: Custom or open source
+- Fonts: None
+- Icons: Emoji Unicode
 
